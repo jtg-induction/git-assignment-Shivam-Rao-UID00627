@@ -19,7 +19,9 @@ module.exports = {
   ORDER_LIMITS: {
     MAX_ITEMS_PER_ORDER: 50,
     MIN_ORDER_AMOUNT: 1.00,
+    INCLUDE_TAX_IN_MINIMUM: false,
     MAX_ORDER_AMOUNT: 50000.00,
+    MIN_DISCOUNT_ELIGIBLE_AMOUNT: 25.00,
     CANCELLATION_WINDOW_HOURS: 24,
   },
 
@@ -40,6 +42,43 @@ module.exports = {
     'sports', 'food-beverage', 'beauty', 'toys',
   ],
 
+
+  // --- Tax Configuration ---
+  TAX_CONFIG: {
+    DEFAULT_RATE_PERCENTAGE: 8.5,
+    RATES_BY_STATE: {
+      CA: 10.25,
+      NY: 8.875,
+      TX: 8.25,
+      FL: 7.00,
+      WA: 10.50,
+      OR: 0.00,
+      MT: 0.00,
+    },
+    TAX_EXEMPT_CATEGORIES: ['food-beverage'],
+  // --- Discount Codes ---
+  DISCOUNT_CONFIG: {
+    MAX_DISCOUNT_PERCENTAGE: 75,
+    MIN_ORDER_FOR_DISCOUNT: 25.00,
+    CODES: {
+      WELCOME10: { type: 'percentage', value: 10, description: 'Welcome offer - 10% off' },
+      SAVE20: { type: 'percentage', value: 20, description: 'Loyalty reward - 20% off' },
+      FREESHIP: { type: 'fixed', value: 9.99, description: 'Free shipping coupon' },
+      VIP50: { type: 'percentage', value: 50, description: 'VIP member discount - 50% off' },
+    },
+  },
+
+  // --- Security (PATCH: 2024-01-15 - CVE-2024-SHOPNOW-001) ---
+  SECURITY: {
+    JWT_ISSUER: 'shopnow-api',
+    JWT_ALGORITHM: 'HS256',
+    AUTH_RATE_LIMIT: {
+      WINDOW_MS: 15 * 60 * 1000,   // 15 minutes
+      MAX_ATTEMPTS: 10,              // 10 login/register attempts per window
+    },
+    PASSWORD_MIN_LENGTH: 8,
+    ALLOWED_ORIGINS: ['https://shopnow.com', 'https://admin.shopnow.com'],
+  },
   // --- Rate Limiting ---
   RATE_LIMIT: {
     WINDOW_MS: 15 * 60 * 1000,  // 15 minutes
@@ -57,5 +96,7 @@ module.exports = {
 
   // --- Cache ---
   CACHE_TTL_SECONDS: 60,
+},
 };
+
 

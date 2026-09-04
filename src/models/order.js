@@ -18,8 +18,8 @@ const orderItemSchema = new mongoose.Schema({
     required: [true, 'Unit price is required'],
     min: [0, 'Unit price cannot be negative'],
   },
-  productName: { type: String, required: true },  // Snapshot at time of order
-  productSku: { type: String, required: true },   // Snapshot at time of order
+  productName: { type: String, required: true },
+  productSku: { type: String, required: true },
 }, { _id: false });
 
 const shippingAddressSchema = new mongoose.Schema({
@@ -33,10 +33,7 @@ const shippingAddressSchema = new mongoose.Schema({
 }, { _id: false });
 
 const orderSchema = new mongoose.Schema({
-  orderNumber: {
-    type: String,
-    unique: true,
-  },
+  orderNumber: { type: String, unique: true },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -55,30 +52,42 @@ const orderSchema = new mongoose.Schema({
     type: shippingAddressSchema,
     required: [true, 'Shipping address is required'],
   },
-  subtotal: {
-    type: Number,
-    required: true,
-    min: 0,
-  },
-  shippingCost: {
+  subtotal: { type: Number, required: true, min: 0 },
+
+  // --- Tax fields (added by main - tax calculation feature) ---
+  taxRate: {
     type: Number,
     default: 0,
-    min: 0,
+    min: [0, 'Tax rate cannot be negative'],
+    max: [50, 'Tax rate seems unreasonably high'],
   },
-  totalAmount: {
+  taxAmount: {
     type: Number,
-    required: true,
-    min: 0,
+    default: 0,
+    min: [0, 'Tax amount cannot be negative'],
   },
+  taxExempt: { type: Boolean, default: false },
+  // --- Discount fields (added by feature/rebase-me) ---
+  discountCode: {
+    type: String,
+    uppercase: true,
+    trim: true,
+  },
+  discountAmount: {
+    type: Number,
+    default: 0,
+    min: [0, 'Discount amount cannot be negative'],
+  },
+  discountDescription: { type: String },
+
+  shippingCost: { type: Number, default: 0, min: 0 },
+  totalAmount: { type: Number, required: true, min: 0 },
   paymentStatus: {
     type: String,
     enum: ['unpaid', 'paid', 'refunded'],
     default: 'unpaid',
   },
-  notes: {
-    type: String,
-    maxlength: [500, 'Notes cannot exceed 500 characters'],
-  },
+  notes: { type: String, maxlength: [500, 'Notes cannot exceed 500 characters'] },
   statusHistory: [{
     status: { type: String, enum: Object.values(ORDER_STATUS) },
     changedAt: { type: Date, default: Date.now },
@@ -87,7 +96,6 @@ const orderSchema = new mongoose.Schema({
   }],
 }, { timestamps: true });
 
-// Auto-generate order number before saving
 orderSchema.pre('save', function (next) {
   if (!this.orderNumber) {
     const timestamp = Date.now().toString(36).toUpperCase();
@@ -99,6 +107,6 @@ orderSchema.pre('save', function (next) {
 
 orderSchema.index({ user: 1, status: 1, createdAt: -1 });
 orderSchema.index({ orderNumber: 1 });
-orderSchema.index({ createdAt: -1 });
+orderSchema.index({ discountCode: 1 });
 
 module.exports = mongoose.model('Order', orderSchema);
