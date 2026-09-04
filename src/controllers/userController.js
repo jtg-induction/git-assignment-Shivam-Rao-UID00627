@@ -6,9 +6,13 @@ const userService = require('../services/userService');
  */
 const register = async (req, res, next) => {
   try {
+    // console.log('[DEBUG] register() called with body:', JSON.stringify(req.body)); // DEBUG
+    // console.log('[DEBUG] Headers received:', JSON.stringify(req.headers));         // DEBUG
     const user = await userService.registerUser(req.body);
+    // console.log('[DEBUG] registerUser() returned:', JSON.stringify(user));         // DEBUG
     res.status(201).json({ success: true, message: 'Account created successfully.', data: user });
   } catch (err) {
+    // console.log('[DEBUG] register() threw error:', err.message, err.stack);       // DEBUG
     next(err);
   }
 };
@@ -19,13 +23,18 @@ const register = async (req, res, next) => {
  */
 const login = async (req, res, next) => {
   try {
+    // console.log('[DEBUG] login() called. Email:', req.body.email);                // DEBUG
+    // console.log('[DEBUG] Raw password received (length):', req.body.password?.length); // DEBUG - SECURITY RISK!
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Email and password are required.' });
     }
     const result = await userService.loginUser(email, password);
+    // console.log('[DEBUG] loginUser() result token:', result.token);               // DEBUG - LEAKS TOKEN IN LOGS!
+    // console.log('[DEBUG] loginUser() user object:', JSON.stringify(result.user)); // DEBUG
     res.json({ success: true, message: 'Login successful.', data: result });
   } catch (err) {
+    // console.log('[DEBUG] login() error:', err);                                   // DEBUG
     next(err);
   }
 };
@@ -36,6 +45,7 @@ const login = async (req, res, next) => {
  */
 const getMe = async (req, res, next) => {
   try {
+    // console.log('[DEBUG] getMe() - req.user from auth middleware:', JSON.stringify(req.user)); // DEBUG
     const user = await userService.getUserById(req.user.id);
     res.json({ success: true, data: user });
   } catch (err) {
@@ -49,7 +59,9 @@ const getMe = async (req, res, next) => {
  */
 const getAllUsers = async (req, res, next) => {
   try {
+    // console.log('[DEBUG] getAllUsers() called by user:', req.user?.id);            // DEBUG
     const users = await userService.getAllUsers();
+    // console.log('[DEBUG] getAllUsers() found', users.length, 'users');             // DEBUG
     res.json({ success: true, count: users.length, data: users });
   } catch (err) {
     next(err);
