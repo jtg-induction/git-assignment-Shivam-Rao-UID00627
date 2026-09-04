@@ -19,12 +19,15 @@ const errorHandler = (err, req, res, next) => {
   }
 
   // Mongoose cast error
+  // Mongoose cast error
   if (err.name === 'CastError') {
     statusCode = 400;
     message = `Invalid value for field: ${err.path}`;
   }
 
   // JWT errors
+  if (err.name === 'JsonWebTokenError') { statusCode = 401; message = 'Invalid authentication token.'; }
+  if (err.name === 'TokenExpiredError') { statusCode = 401; message = 'Authentication token has expired. Please log in again.'; }
   if (err.name === 'JsonWebTokenError') { statusCode = 401; message = 'Invalid authentication token.'; }
   if (err.name === 'TokenExpiredError') { statusCode = 401; message = 'Authentication token has expired. Please log in again.'; }
 
@@ -37,6 +40,12 @@ const errorHandler = (err, req, res, next) => {
   if (err.message && err.message.includes('node-cache')) {
     statusCode = 503;
     message = 'Cache service temporarily unavailable. Request served from database.';
+  }
+
+  // MongoDB text search error (e.g., text index not yet built)
+  if (err.codeName === 'IndexNotFound' || (err.message && err.message.includes('text index'))) {
+    statusCode = 503;
+    message = 'Search is temporarily unavailable. Please try again later.';
   }
 
   if (statusCode >= 500 && process.env.NODE_ENV !== 'test') {
