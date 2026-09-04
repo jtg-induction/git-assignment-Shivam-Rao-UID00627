@@ -67,6 +67,18 @@ module.exports = {
       VIP50: { type: 'percentage', value: 50, description: 'VIP member discount - 50% off' },
     },
   },
+
+  // --- Security (PATCH: 2024-01-15 - CVE-2024-SHOPNOW-001) ---
+  SECURITY: {
+    JWT_ISSUER: 'shopnow-api',
+    JWT_ALGORITHM: 'HS256',
+    AUTH_RATE_LIMIT: {
+      WINDOW_MS: 15 * 60 * 1000,   // 15 minutes
+      MAX_ATTEMPTS: 10,              // 10 login/register attempts per window
+    },
+    PASSWORD_MIN_LENGTH: 8,
+    ALLOWED_ORIGINS: ['https://shopnow.com', 'https://admin.shopnow.com'],
+  },
   // --- Rate Limiting ---
   RATE_LIMIT: {
     WINDOW_MS: 15 * 60 * 1000,  // 15 minutes
@@ -78,4 +90,5 @@ module.exports = {
   CACHE_TTL_SECONDS: 60,
 },
 };
+
 
