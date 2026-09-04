@@ -95,8 +95,7 @@ module.exports = {
   },
 
   // --- Cache ---
-  CACHE_TTL_SECONDS: 60,
-},
+  CACHE_TTL_SECONDS: 15,
 };
 
 
